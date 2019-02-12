@@ -25,6 +25,10 @@ docker run --rm \
 ```yaml
   code-analysis:
     image: aosapps/drone-sonar-plugin
-    secrets: [sonar_host, sonar_token]
+    settings:
+        sonar_host:
+          from_secret: sonar_host
+        sonar_token:
+          from_secret: sonar_token
 ```
 

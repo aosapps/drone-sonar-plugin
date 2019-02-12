@@ -1,5 +1,5 @@
 ---
-date: 2018-08-29T00:00:00+00:00
+date: 2019-02-12T10:50:00+00:00
 title: SonarQube
 author: aosapps
 tags: [ Sonar, SonarQube, Analysis, report ]
@@ -15,7 +15,11 @@ The below pipeline configuration demonstrates simple usage:
 ```yaml
   code-analysis:
     image: aosapps/drone-sonar-plugin
-    secrets: [sonar_host, sonar_token]
+    settings:
+        sonar_host:
+          from_secret: sonar_host
+        sonar_token:
+          from_secret: sonar_token
 ```
 
 Customized parameters could be specified:
@@ -23,13 +27,17 @@ Customized parameters could be specified:
 ```diff
   code-analysis:
     image: aosapps/drone-sonar-plugin
-    secrets: [sonar_host, sonar_token]
-+   ver: 1.0
-+   timeout: 20
-+   sources: .
-+   level: DEBUG
-+   showProfiling: true
-+   exclusions: **/static/**/*,**/dist/**/*.js
+    settings:
+        sonar_host:
+          from_secret: sonar_host
+        sonar_token:
+          from_secret: sonar_token
++       ver: 1.0
++       timeout: 20
++       sources: .
++       level: DEBUG
++       showProfiling: true
++       exclusions: **/static/**/*,**/dist/**/*.js
 ```
 
 # Secret Reference
