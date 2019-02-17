@@ -23,12 +23,12 @@ docker run --rm \
 
 ### Pipeline example
 ```yaml
-  code-analysis:
-    image: aosapps/drone-sonar-plugin
-    settings:
-        sonar_host:
-          from_secret: sonar_host
-        sonar_token:
-          from_secret: sonar_token
+steps
+- name: code-analysis
+  image: aosapps/drone-sonar-plugin
+  settings:
+      sonar_host:
+        from_secret: sonar_host
+      sonar_token:
+        from_secret: sonar_token
 ```
-
