@@ -60,6 +60,7 @@ Safety first, the host and token are stored in Drone Secrets.
     * DEBUG: Display INFO logs + more details at DEBUG level.
     * TRACE: Display DEBUG logs + the timings of all ElasticSearch queries and Web API calls executed by the SonarQube Scanner.
 * `showProfiling`: Display logs to see where the analyzer spends time. Default value `false`
+* `branchAnalysis`: Pass currently analysed branch to SonarQube. (Must not be active for initial scan!) Default value `false`
 
 # Notes
 

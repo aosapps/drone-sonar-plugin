@@ -13,14 +13,15 @@ type (
 		Host  string
 		Token string
 
-		Version       string
-		Branch        string
-		Sources       string
-		Timeout       string
-		Inclusions    string
-		Exclusions    string
-		Level         string
-		showProfiling string
+		Version        string
+		Branch         string
+		Sources        string
+		Timeout        string
+		Inclusions     string
+		Exclusions     string
+		Level          string
+		showProfiling  string
+		branchAnalysis bool
 	}
 	Plugin struct {
 		Config Config
@@ -35,7 +36,6 @@ func (p Plugin) Exec() error {
 		"-Dsonar.login=" + p.Config.Token,
 
 		"-Dsonar.projectVersion=" + p.Config.Version,
-		"-Dsonar.branch.name=" + p.Config.Branch,
 		"-Dsonar.sources=" + p.Config.Sources,
 		"-Dsonar.ws.timeout=" + p.Config.Timeout,
 		"-Dsonar.inclusions=" + p.Config.Inclusions,
@@ -44,6 +44,11 @@ func (p Plugin) Exec() error {
 		"-Dsonar.showProfiling=" + p.Config.showProfiling,
 		"-Dsonar.scm.provider=git",
 	}
+
+	if p.Config.branchAnalysis {
+		args = append(args, "-Dsonar.branch.name="+p.Config.Branch)
+	}
+
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
 	output, err := cmd.CombinedOutput()

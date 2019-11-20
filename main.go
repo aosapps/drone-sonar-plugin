@@ -82,6 +82,11 @@ func main() {
 			Value:  "false",
 			EnvVar: "PLUGIN_SHOWPROFILING",
 		},
+		cli.BoolFlag{
+			Name:   "branchAnalysis",
+			Usage:  "execute branchAnalysis",
+			EnvVar: "PLUGIN_BRANCHANALYSIS",
+		},
 	}
 
 	app.Run(os.Args)
@@ -95,14 +100,15 @@ func run(c *cli.Context) {
 			Host:  c.String("host"),
 			Token: c.String("token"),
 
-			Version:       c.String("ver"),
-			Branch:        c.String("branch"),
-			Timeout:       c.String("timeout"),
-			Sources:       c.String("sources"),
-			Inclusions:    c.String("inclusions"),
-			Exclusions:    c.String("exclusions"),
-			Level:         c.String("level"),
-			showProfiling: c.String("showProfiling"),
+			Version:        c.String("ver"),
+			Branch:         c.String("branch"),
+			Timeout:        c.String("timeout"),
+			Sources:        c.String("sources"),
+			Inclusions:     c.String("inclusions"),
+			Exclusions:     c.String("exclusions"),
+			Level:          c.String("level"),
+			showProfiling:  c.String("showProfiling"),
+			branchAnalysis: c.Bool("branchAnalysis"),
 		},
 	}
 
