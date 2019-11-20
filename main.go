@@ -44,6 +44,11 @@ func main() {
 			EnvVar: "DRONE_BUILD_NUMBER",
 		},
 		cli.StringFlag{
+			Name:   "branch",
+			Usage:  "Project branch",
+			EnvVar: "DRONE_BRANCH",
+		},
+		cli.StringFlag{
 			Name:   "timeout",
 			Usage:  "Web request timeout",
 			Value:  "60",
@@ -91,6 +96,7 @@ func run(c *cli.Context) {
 			Token: c.String("token"),
 
 			Version:       c.String("ver"),
+			Branch:        c.String("branch"),
 			Timeout:       c.String("timeout"),
 			Sources:       c.String("sources"),
 			Inclusions:    c.String("inclusions"),
