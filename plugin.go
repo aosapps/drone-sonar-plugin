@@ -1,25 +1,27 @@
 package main
 
 import (
-	"strings"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 type (
 	Config struct {
-		Key   			string
-		Name    		string
-		Host  			string
-		Token 			string
+		Key   string
+		Name  string
+		Host  string
+		Token string
 
-		Version    		string
-		Sources    		string
-		Timeout   		string
-		Inclusions    	string
-		Exclusions  	string
-		Level 			string
-		showProfiling 	string
+		Version        string
+		Branch         string
+		Sources        string
+		Timeout        string
+		Inclusions     string
+		Exclusions     string
+		Level          string
+		showProfiling  string
+		branchAnalysis bool
 	}
 	Plugin struct {
 		Config Config
@@ -41,8 +43,12 @@ func (p Plugin) Exec() error {
 		"-Dsonar.log.level=" + p.Config.Level,
 		"-Dsonar.showProfiling=" + p.Config.showProfiling,
 		"-Dsonar.scm.provider=git",
-		
 	}
+
+	if p.Config.branchAnalysis {
+		args = append(args, "-Dsonar.branch.name="+p.Config.Branch)
+	}
+
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
 	output, err := cmd.CombinedOutput()
