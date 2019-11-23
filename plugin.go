@@ -36,13 +36,23 @@ type (
 	}
 )
 
-type SonarStatus struct {
-	ProjectStatus struct {
-		Status string `json:"status"`
-	}
+type SonarStatusPeriod struct {
+	Date string `json:"date"`
 }
 
-func (p Plugin) getQualityGateStatus() string {
+type SonarStatusError struct {
+	Msg string `json:"msg"`
+}
+
+type SonarStatus struct {
+	ProjectStatus struct {
+		Status  string              `json:"status"`
+		Periods []SonarStatusPeriod `json:"periods"`
+	}
+	Errors []SonarStatusError `json:"errors"`
+}
+
+func (p Plugin) getQualityGateStatus() (string, time.Time, error) {
 	// Check status
 	// p.Config.Host /api/qualitygates/project_status?projectKey=
 	client := http.Client{
@@ -50,6 +60,10 @@ func (p Plugin) getQualityGateStatus() string {
 	}
 
 	url := fmt.Sprintf("%s/api/qualitygates/project_status?projectKey=%s", p.Config.Host, p.getProjectKey())
+	if p.Config.branchAnalysis {
+		// Add branch param if branch analysis is conducted
+		url += fmt.Sprintf("&branch=%s", p.Config.Branch)
+	}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -69,7 +83,15 @@ func (p Plugin) getQualityGateStatus() string {
 	if jsonErr := json.Unmarshal(body, &status); jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
-	return status.ProjectStatus.Status
+	if len(status.Errors) > 0 {
+		return "", time.Now(), fmt.Errorf(status.Errors[0].Msg)
+	}
+
+	updateTime, timeErr := time.Parse("2006-01-02T15:04:05-0700", status.ProjectStatus.Periods[0].Date)
+	if timeErr != nil {
+		log.Fatal(timeErr)
+	}
+	return status.ProjectStatus.Status, updateTime, nil
 }
 
 func (p Plugin) getProjectKey() string {
@@ -114,10 +136,23 @@ func (p Plugin) Exec() error {
 	}
 
 	if p.Config.EnableGateBreaker {
-		qgStatus := p.getQualityGateStatus()
-		fmt.Printf("==> Quality Gate status: %s\n", qgStatus)
-		if status := qgStatus; status == "ERROR" {
-			return fmt.Errorf("pipeline aborted because quality gate failed")
+		for repeat := true; repeat; {
+			qgStatus, qgDate, qpError := p.getQualityGateStatus()
+			if qpError != nil {
+				return qpError
+			}
+			fmt.Printf("==> Date execution: %s\n", executionDate.String())
+			fmt.Printf("==> Date last update: %s\n", qgDate.String())
+			if qgDate.Before(executionDate) {
+				fmt.Printf("Awaiting completion of analysis. Last status is from %s", qgDate)
+				time.Sleep(30 * time.Second)
+				continue
+			}
+			repeat = false
+			fmt.Printf("==> Quality Gate status: %s\n", qgStatus)
+			if status := qgStatus; status == "ERROR" {
+				return fmt.Errorf("pipeline aborted because quality gate failed")
+			}
 		}
 	}
 
