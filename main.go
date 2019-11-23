@@ -92,6 +92,11 @@ func main() {
 			Usage:  "using sonar-project.properties",
 			EnvVar: "PLUGIN_USINGPROPERTIES",
 		},
+		cli.BoolFlag{
+			Name:   "enableGateBreaker",
+			Usage:  "fail if quality gate fails",
+			EnvVar: "PLUGIN_ENABLEGATEBREAKER",
+		},
 	}
 
 	app.Run(os.Args)
@@ -115,6 +120,7 @@ func run(c *cli.Context) {
 			ShowProfiling:  c.String("showProfiling"),
 			BranchAnalysis: c.Bool("branchAnalysis"),
 			UsingProperties: c.Bool("usingProperties"),
+			enableGateBreaker: c.Bool("enableGateBreaker"),
 
 		},
 	}
