@@ -1,15 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	sonargo "github.com/saitho/sonargo/sonar"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type (
@@ -32,73 +30,17 @@ type (
 		EnableGateBreaker bool
 	}
 	Plugin struct {
-		Config Config
+		Config      Config
+		SonarClient *sonargo.Client
 	}
 )
-
-type SonarStatusPeriod struct {
-	Date string `json:"date"`
-}
-
-type SonarStatusError struct {
-	Msg string `json:"msg"`
-}
-
-type SonarStatus struct {
-	ProjectStatus struct {
-		Status  string              `json:"status"`
-		Periods []SonarStatusPeriod `json:"periods"`
-	}
-	Errors []SonarStatusError `json:"errors"`
-}
-
-func (p Plugin) getQualityGateStatus() (string, time.Time, error) {
-	// Check status
-	// p.Config.Host /api/qualitygates/project_status?projectKey=
-	client := http.Client{
-		Timeout: time.Second * 2, // Maximum of 2 secs
-	}
-
-	url := fmt.Sprintf("%s/api/qualitygates/project_status?projectKey=%s", p.Config.Host, p.getProjectKey())
-	if p.Config.branchAnalysis {
-		// Add branch param if branch analysis is conducted
-		url += fmt.Sprintf("&branch=%s", p.Config.Branch)
-	}
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	res, getErr := client.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
-
-	status := SonarStatus{}
-	if jsonErr := json.Unmarshal(body, &status); jsonErr != nil {
-		log.Fatal(jsonErr)
-	}
-	if len(status.Errors) > 0 {
-		return "", time.Now(), fmt.Errorf(status.Errors[0].Msg)
-	}
-
-	updateTime, timeErr := time.Parse("2006-01-02T15:04:05-0700", status.ProjectStatus.Periods[0].Date)
-	if timeErr != nil {
-		log.Fatal(timeErr)
-	}
-	return status.ProjectStatus.Status, updateTime, nil
-}
 
 func (p Plugin) getProjectKey() string {
 	return strings.Replace(p.Config.Key, "/", ":", -1)
 }
 
-func (p Plugin) Exec() error {
+// Returns array of arguments that will be used during the command call
+func (p Plugin) getCommandArgs() []string {
 	args := []string{
 		"-Dsonar.host.url=" + p.Config.Host,
 		"-Dsonar.login=" + p.Config.Token,
@@ -125,6 +67,11 @@ func (p Plugin) Exec() error {
 		args = append(args, "-Dsonar.branch.name=" + p.Config.Branch)
 	}
 
+	return args
+}
+
+func (p Plugin) Exec() error {
+	args := p.getCommandArgs()
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
@@ -136,25 +83,28 @@ func (p Plugin) Exec() error {
 	}
 
 	if p.Config.EnableGateBreaker {
-		for repeat := true; repeat; {
-			qgStatus, qgDate, qpError := p.getQualityGateStatus()
-			if qpError != nil {
-				return qpError
-			}
-			fmt.Printf("==> Date execution: %s\n", executionDate.String())
-			fmt.Printf("==> Date last update: %s\n", qgDate.String())
-			if qgDate.Before(executionDate) {
-				fmt.Printf("Awaiting completion of analysis. Last status is from %s", qgDate)
-				time.Sleep(30 * time.Second)
-				continue
-			}
-			repeat = false
-			fmt.Printf("==> Quality Gate status: %s\n", qgStatus)
-			if status := qgStatus; status == "ERROR" {
-				return fmt.Errorf("pipeline aborted because quality gate failed")
-			}
+		// Extract task id from command log
+		taskId, extractError := p.extractReportIdFromAnalysisLog(string(output))
+		if extractError != nil {
+			return extractError
+		}
+		// Check if quality gate succeeded
+		if err = p.validateQualityGate(taskId); err != nil {
+			return err
 		}
 	}
 
 	return nil
+}
+
+func NewPlugin(config Config) (*Plugin, error) {
+	client, err := sonargo.NewClientByToken(config.Host+"/api", config.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Plugin{
+		Config:      config,
+		SonarClient: client,
+	}, nil
 }
