@@ -48,7 +48,7 @@ func (p Plugin) Exec() error {
 			"-Dsonar.showProfiling=" + p.Config.ShowProfiling,
 			"-Dsonar.scm.provider=git",
 		}
-		args = append(args, argsParameter)
+		args = append(args, argsParameter...)
 	}
 
 
