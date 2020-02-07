@@ -87,6 +87,11 @@ func main() {
 			Usage:  "execute branchAnalysis",
 			EnvVar: "PLUGIN_BRANCHANALYSIS",
 		},
+		cli.BoolFlag{
+			Name:   "usingProperties",
+			Usage:  "using sonar-project.properties",
+			EnvVar: "PLUGIN_USINGPROPERTIES",
+		},
 	}
 
 	app.Run(os.Args)
@@ -107,8 +112,10 @@ func run(c *cli.Context) {
 			Inclusions:     c.String("inclusions"),
 			Exclusions:     c.String("exclusions"),
 			Level:          c.String("level"),
-			showProfiling:  c.String("showProfiling"),
-			branchAnalysis: c.Bool("branchAnalysis"),
+			ShowProfiling:  c.String("showProfiling"),
+			BranchAnalysis: c.Bool("branchAnalysis"),
+			UsingProperties: c.Bool("usingProperties"),
+
 		},
 	}
 

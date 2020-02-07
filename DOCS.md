@@ -13,33 +13,34 @@ This plugin can scan your code quality and post the analysis report to your Sona
 The below pipeline configuration demonstrates simple usage:
 
 ```yaml
-steps
+steps:
 - name: code-analysis
   image: aosapps/drone-sonar-plugin
   settings:
-      sonar_host:
-        from_secret: sonar_host
-      sonar_token:
-        from_secret: sonar_token
+    sonar_host:
+      from_secret: sonar_host
+    sonar_token:
+      from_secret: sonar_token
 ```
 
 Customized parameters could be specified:
 
 ```diff
-  steps
+  steps:
   - name: code-analysis
     image: aosapps/drone-sonar-plugin
     settings:
-        sonar_host:
-          from_secret: sonar_host
-        sonar_token:
-          from_secret: sonar_token
-+       ver: 1.0
-+       timeout: 20
-+       sources: .
-+       level: DEBUG
-+       showProfiling: true
-+       exclusions: **/static/**/*,**/dist/**/*.js
+      sonar_host:
+        from_secret: sonar_host
+      sonar_token:
+        from_secret: sonar_token
++     ver: 1.0
++     timeout: 20
++     sources: .
++     level: DEBUG
++     showProfiling: true
++     exclusions: **/static/**/*,**/dist/**/*.js
++     usingProperties: false
 ```
 
 # Secret Reference
@@ -61,6 +62,11 @@ Safety first, the host and token are stored in Drone Secrets.
     * TRACE: Display DEBUG logs + the timings of all ElasticSearch queries and Web API calls executed by the SonarQube Scanner.
 * `showProfiling`: Display logs to see where the analyzer spends time. Default value `false`
 * `branchAnalysis`: Pass currently analysed branch to SonarQube. (Must not be active for initial scan!) Default value `false`
+
+
+* `usingProperties`: Using the `sonar-project.properties` file in root directory as sonar parameters. (Not include `sonar_host` and
+`sonar_token`.) Default value `false`
+
 
 # Notes
 
