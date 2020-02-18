@@ -53,7 +53,7 @@ func (p Plugin) Exec() error {
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stdout
+	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Code Analysis Result:\n")
 	err := cmd.Run()
 	if err != nil {
