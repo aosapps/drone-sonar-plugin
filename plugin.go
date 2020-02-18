@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -58,10 +59,10 @@ func (p Plugin) Exec() error {
 
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
-	output, err := cmd.CombinedOutput()
-	if len(output) > 0 {
-		fmt.Printf("==> Code Analysis Result: %s\n", string(output))
-	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	fmt.Printf("==> Code Analysis Result:\n")
+	err := cmd.Run()
 	if err != nil {
 		return err
 	}
