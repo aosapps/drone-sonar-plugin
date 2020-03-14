@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	sonargo "github.com/saitho/sonargo/sonar"
+	sonargo "github.com/magicsong/sonargo/sonar"
 	"regexp"
 	"time"
 )

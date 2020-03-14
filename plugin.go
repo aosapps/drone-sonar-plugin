@@ -1,10 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	sonargo "github.com/saitho/sonargo/sonar"
-	"log"
-	"net/http"
+	sonargo "github.com/magicsong/sonargo/sonar"
 	"os"
 	"os/exec"
 	"strings"
@@ -74,17 +73,22 @@ func (p Plugin) Exec() error {
 	args := p.getCommandArgs()
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
+	var outb, errb bytes.Buffer
+	cmd.Stdout = &outb
+	cmd.Stderr = &errb
 	fmt.Printf("==> Code Analysis Result:\n")
 	err := cmd.Run()
 	if err != nil {
 		return err
 	}
 
+	_, _ = os.Stdout.Write(outb.Bytes())
+	_, _ = os.Stderr.Write(errb.Bytes())
+
 	if p.Config.EnableGateBreaker {
 		// Extract task id from command log
-		taskId, extractError := p.extractReportIdFromAnalysisLog(string(output))
+		taskId, extractError := p.extractReportIdFromAnalysisLog(outb.String())
 		if extractError != nil {
 			return extractError
 		}
