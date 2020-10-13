@@ -5,9 +5,9 @@ COPY *.go ./
 COPY vendor ./vendor/
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o drone-sonar
 
-FROM openjdk:14-jdk-alpine
+FROM openjdk:8-jre-alpine
 
-ARG SONAR_VERSION=4.4.0.2170
+ARG SONAR_VERSION=4.5.0.2216
 ARG SONAR_SCANNER_CLI=sonar-scanner-cli-${SONAR_VERSION}
 ARG SONAR_SCANNER=sonar-scanner-${SONAR_VERSION}
 
