@@ -92,31 +92,39 @@ func main() {
 			Usage:  "using sonar-project.properties",
 			EnvVar: "PLUGIN_USINGPROPERTIES",
 		},
+		cli.BoolFlag{
+			Name:   "enableGateBreaker",
+			Usage:  "fail if quality gate fails",
+			EnvVar: "PLUGIN_ENABLEGATEBREAKER",
+		},
 	}
 
 	app.Run(os.Args)
 }
 
 func run(c *cli.Context) {
-	plugin := Plugin{
-		Config: Config{
-			Key:   c.String("key"),
-			Name:  c.String("name"),
-			Host:  c.String("host"),
-			Token: c.String("token"),
+	config := Config{
+		Key:   c.String("key"),
+		Name:  c.String("name"),
+		Host:  c.String("host"),
+		Token: c.String("token"),
 
-			Version:        c.String("ver"),
-			Branch:         c.String("branch"),
-			Timeout:        c.String("timeout"),
-			Sources:        c.String("sources"),
-			Inclusions:     c.String("inclusions"),
-			Exclusions:     c.String("exclusions"),
-			Level:          c.String("level"),
-			ShowProfiling:  c.String("showProfiling"),
-			BranchAnalysis: c.Bool("branchAnalysis"),
-			UsingProperties: c.Bool("usingProperties"),
-
-		},
+		Version:           c.String("ver"),
+		Branch:            c.String("branch"),
+		Timeout:           c.String("timeout"),
+		Sources:           c.String("sources"),
+		Inclusions:        c.String("inclusions"),
+		Exclusions:        c.String("exclusions"),
+		Level:             c.String("level"),
+		ShowProfiling:  c.String("showProfiling"),
+		BranchAnalysis: c.Bool("branchAnalysis"),
+		UsingProperties: c.Bool("usingProperties"),
+		EnableGateBreaker: c.Bool("enableGateBreaker"),
+	}
+	plugin, pluginError := NewPlugin(config)
+	if pluginError != nil {
+		fmt.Println(pluginError)
+		os.Exit(1)
 	}
 
 	if err := plugin.Exec(); err != nil {

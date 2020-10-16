@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	sonargo "github.com/magicsong/sonargo/sonar"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,23 +16,30 @@ type (
 		Host  string
 		Token string
 
-		Version        string
-		Branch         string
-		Sources        string
-		Timeout        string
-		Inclusions     string
-		Exclusions     string
-		Level          string
-		ShowProfiling  string
-		BranchAnalysis bool
-		UsingProperties bool
+		Version           string
+		Branch            string
+		Sources           string
+		Timeout           string
+		Inclusions        string
+		Exclusions        string
+		Level             string
+		ShowProfiling     string
+		BranchAnalysis    bool
+		UsingProperties   bool
+		EnableGateBreaker bool
 	}
 	Plugin struct {
-		Config Config
+		Config      Config
+		SonarClient *sonargo.Client
 	}
 )
 
-func (p Plugin) Exec() error {
+func (p Plugin) getProjectKey() string {
+	return strings.Replace(p.Config.Key, "/", ":", -1)
+}
+
+// Returns array of arguments that will be used during the command call
+func (p Plugin) getCommandArgs() []string {
 	args := []string{
 		"-Dsonar.host.url=" + p.Config.Host,
 		"-Dsonar.login=" + p.Config.Token,
@@ -38,7 +47,7 @@ func (p Plugin) Exec() error {
 
 	if !p.Config.UsingProperties {
 		argsParameter := []string{
-			"-Dsonar.projectKey=" + strings.Replace(p.Config.Key, "/", ":", -1),
+			"-Dsonar.projectKey=" + p.getProjectKey(),
 			"-Dsonar.projectName=" + p.Config.Name,
 			"-Dsonar.projectVersion=" + p.Config.Version,
 			"-Dsonar.sources=" + p.Config.Sources,
@@ -57,15 +66,49 @@ func (p Plugin) Exec() error {
 		args = append(args, "-Dsonar.branch.name=" + p.Config.Branch)
 	}
 
+	return args
+}
+
+func (p Plugin) Exec() error {
+	args := p.getCommandArgs()
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
+	var outb, errb bytes.Buffer
+	cmd.Stdout = &outb
+	cmd.Stderr = &errb
 	fmt.Printf("==> Code Analysis Result:\n")
 	err := cmd.Run()
 	if err != nil {
 		return err
 	}
 
+	_, _ = os.Stdout.Write(outb.Bytes())
+	_, _ = os.Stderr.Write(errb.Bytes())
+
+	if p.Config.EnableGateBreaker {
+		// Extract task id from command log
+		taskId, extractError := p.extractReportIdFromAnalysisLog(outb.String())
+		if extractError != nil {
+			return extractError
+		}
+		// Check if quality gate succeeded
+		if err = p.validateQualityGate(taskId); err != nil {
+			return err
+		}
+	}
+
 	return nil
+}
+
+func NewPlugin(config Config) (*Plugin, error) {
+	client, err := sonargo.NewClientByToken(config.Host+"/api", config.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Plugin{
+		Config:      config,
+		SonarClient: client,
+	}, nil
 }
