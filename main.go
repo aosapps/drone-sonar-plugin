@@ -4,13 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-
+	
 	"github.com/urfave/cli"
 )
 
 var version string // build number set at compile-time
 
-func amain() {
+func main() {
 	app := cli.NewApp()
 	app.Name = "drone-sonar-scanner"
 	app.Usage = "Drone plugin integrate sonar-scanner and results of SonarQube Quality Gates."
@@ -96,6 +96,11 @@ func amain() {
 			EnvVar: "SONAR_PROJECT_SETTINGS,PLUGIN_PROJECT_SETTINGS",
 			Value:  "sonar-project.properties",
 		},
+		cli.StringFlag{
+			Name:   "binaries",
+			Usage:  "repository full name",
+			EnvVar: "PLUGIN_BINARIES,JAVA_BINARIES",
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -121,6 +126,7 @@ func run(c *cli.Context) {
 		Branch:     c.String("branch"),
 		Quality:    c.String("quality"),
 		Settings:   c.String("settings"),
+		Binaries:   c.String("binaries"),
 	}
 	os.Setenv("TOKEN", base64.StdEncoding.EncodeToString([]byte(c.String("token")+":")))
 	if err := plugin.Exec(); err != nil {

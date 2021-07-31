@@ -37,6 +37,7 @@ type (
 		Branch     string
 		Quality    string
 		Settings   string
+		Binaries   string
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt
 	SonarReport struct {
@@ -146,6 +147,7 @@ func staticScan(p *Plugin) (*SonarReport, error) {
 		"-Dsonar.profile=" + p.Profile,
 		"-Dsonar.branch=" + p.Branch,
 		"-Dsonar.scm.provider=git",
+		"-Dsonar.java.binaries=" + p.Binaries,
 	}
 
 	cmd := exec.Command("sonar-scanner", args...)
