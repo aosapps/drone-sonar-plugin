@@ -218,7 +218,7 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	}
 	fmt.Printf("==> Report Result:\n")
 	fmt.Printf(string(buf))
-	fmt.Printf("\n\n==> Harness CIE Sonarcube Plugin with Quality Gateway <==\n\n==> Results:")
+	fmt.Printf("\n\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n==> Results:")
 
 	return project.ProjectStatus.Status
 }

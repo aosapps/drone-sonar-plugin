@@ -1,13 +1,13 @@
 FROM golang:1.13.4-alpine as build
 RUN apk add --no-cache --update git
-RUN mkdir -p /go/src/github.com/aosapps/drone-sonar-plugin
-WORKDIR /go/src/github.com/aosapps/drone-sonar-plugin 
+RUN mkdir -p /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner
+WORKDIR /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner 
 COPY *.go ./
 COPY vendor ./vendor/
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/pelletier/go-toml/cmd/tomll
 RUN go get github.com/codegangsta/cli
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o drone-sonar
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o harness-sonar
 
 FROM openjdk:11.0.8-jre
 
@@ -19,7 +19,7 @@ RUN apt-get update \
     && apt-get install -y nodejs curl \
     && apt-get clean
 
-COPY --from=build /go/src/github.com/aosapps/drone-sonar-plugin/drone-sonar /bin/
+COPY --from=build /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner/harness-sonar /bin/
 WORKDIR /bin
 
 RUN curl https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/${SONAR_SCANNER_CLI}.zip -so /bin/${SONAR_SCANNER_CLI}.zip
@@ -28,4 +28,4 @@ RUN unzip ${SONAR_SCANNER_CLI}.zip \
 
 ENV PATH $PATH:/bin/${SONAR_SCANNER}/bin
 
-ENTRYPOINT /bin/drone-sonar
+ENTRYPOINT /bin/harness-sonar
