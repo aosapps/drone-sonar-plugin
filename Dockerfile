@@ -1,21 +1,31 @@
-FROM openjdk:8-jre-alpine
+FROM golang:1.13.4-alpine as build
+RUN apk add --no-cache --update git
+RUN mkdir -p /go/src/github.com/aosapps/drone-sonar-plugin
+WORKDIR /go/src/github.com/aosapps/drone-sonar-plugin 
+COPY *.go ./
+COPY vendor ./vendor/
+RUN go get github.com/sirupsen/logrus
+RUN go get github.com/pelletier/go-toml/cmd/tomll
+RUN go get github.com/codegangsta/cli
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o drone-sonar
 
-LABEL maintainer="Diego Pereira <diego.pereira@harness.io>"
+FROM openjdk:11.0.8-jre
 
-ARG SONAR_VERSION=4.0.0.1744
+ARG SONAR_VERSION=4.5.0.2216
 ARG SONAR_SCANNER_CLI=sonar-scanner-cli-${SONAR_VERSION}
 ARG SONAR_SCANNER=sonar-scanner-${SONAR_VERSION}
 
-# RUN apk add --no-cache --update nodejs curl
-COPY sonar-scanner-plugin /bin/
-COPY sonar-scanner-cli-4.4.0.2170.zip  /bin/${SONAR_SCANNER_CLI}.zip
+RUN apt-get update \
+    && apt-get install -y nodejs curl \
+    && apt-get clean
+
+COPY --from=build /go/src/github.com/aosapps/drone-sonar-plugin/drone-sonar /bin/
 WORKDIR /bin
 
-# curl -fsSLO https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/${SONAR_SCANNER_CLI}.zip && \
-RUN unzip -q ${SONAR_SCANNER_CLI}.zip && \
-    rm -f ${SONAR_SCANNER_CLI}.zip
+RUN curl https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/${SONAR_SCANNER_CLI}.zip -so /bin/${SONAR_SCANNER_CLI}.zip
+RUN unzip ${SONAR_SCANNER_CLI}.zip \
+    && rm ${SONAR_SCANNER_CLI}.zip 
 
 ENV PATH $PATH:/bin/${SONAR_SCANNER}/bin
-ENV SONAR_SCANNER_OPTS -Xmx512m
 
-ENTRYPOINT /bin/sonar-scanner-plugin
+ENTRYPOINT /bin/drone-sonar

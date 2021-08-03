@@ -1,21 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"os/exec"
-	"strings"
-
-	"github.com/pelletier/go-toml"
-	"github.com/sirupsen/logrus"
-
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"os/exec"
+	"strings"
 	"time"
+
+	"github.com/pelletier/go-toml"
+	"github.com/sirupsen/logrus"
 )
 
 var netClient *http.Client
@@ -39,6 +38,14 @@ type (
 		UsingProperties bool
 		Binaries        string
 		Quality         string
+		Settings        string
+		Language        string
+		Profile         string
+		Encoding        string
+		Remote          string
+	}
+	Plugin struct {
+		Config Config
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt
 	SonarReport struct {
@@ -47,9 +54,6 @@ type (
 		DashboardURL string `toml:"dashboardUrl"`
 		CeTaskID     string `toml:"ceTaskId"`
 		CeTaskURL    string `toml:"ceTaskUrl"`
-	}
-	Plugin struct {
-		Config Config
 	}
 	// TaskResponse Give Compute Engine task details such as type, status, duration and associated component.
 	TaskResponse struct {
@@ -120,81 +124,37 @@ func (p Plugin) Exec() error {
 		return err
 	}
 
-	/* Test result report*/
-
-	cmd = exec.Command("cat", ".scannerwork/report-task.txt")
-	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	fmt.Printf("==> Report Result:\n")
-	err = cmd.Run()
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Run command cat reportname failed")
-		return err
-	}
-
-	report, err := staticScan(&p)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Unable to scan")
-	}
-
-	logrus.WithFields(logrus.Fields{
-		"job url": report.CeTaskURL,
-	}).Info("Job url")
-
-	task, err := waitForSonarJob(report)
-
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Unable to get Job state")
-		return err
-	}
-
-	status := getStatus(task, report)
-
-	if status != p.Config.Quality {
-		logrus.WithFields(logrus.Fields{
-			"status": status,
-		}).Fatal("QualityGate status failed")
-	} else {
-
-		fmt.Printf("\nPASSED\n\n")
-		logrus.WithFields(logrus.Fields{
-			"status": status,
-		}).Info("QualityGate Status Success")
-	}
-
 	return nil
-}
+	/*
 
-func staticScan(p *Plugin) (*SonarReport, error) {
+		report, err := staticScan(&p)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Fatal("Unable to scan")
+		}
 
-	/* end Test Report Result */
-	//fmt.Printf("==> Sed Result:\n")
-	cmd := exec.Command("sed", "-e", "s/=/=\"/", "-e", "s/$/\"/", ".scannerwork/report-task.txt")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Run command sed failed")
-		return nil, err
-	}
-	report := SonarReport{}
-	err = toml.Unmarshal(output, &report)
+			"job url": report.CeTaskURL,
+		}).Info("Job url")
 
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"error": err,
-		}).Fatal("Toml Unmarshal failed")
-		return nil, err
-	}
+		task, err := waitForSonarJob(report)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Fatal("Unable to get Job state")
+		}
 
-	return &report, nil
+		status := getStatus(task, report)
+
+		if status != p.Config.Quality {
+			logrus.WithFields(logrus.Fields{
+				"status": status,
+			}).Fatal("QualityGate status failed")
+		}
+
+		return nil
+	*/
 }
 
 func getStatus(task *TaskResponse, report *SonarReport) string {
@@ -204,6 +164,7 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	projectRequest, err := http.NewRequest("GET", report.ServerURL+"/api/qualitygates/project_status?"+reportRequest.Encode(), nil)
 	projectRequest.Header.Add("Authorization", "Basic "+os.Getenv("TOKEN"))
 	projectResponse, err := netClient.Do(projectRequest)
+
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
@@ -216,9 +177,6 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 			"error": err,
 		}).Fatal("Failed")
 	}
-	fmt.Printf("==> Report Result:\n")
-	fmt.Printf(string(buf))
-	fmt.Printf("\n\n==> Harness CIE Sonarcube Plugin with Quality Gateway <==\n\n==> Results:")
 
 	return project.ProjectStatus.Status
 }
@@ -251,9 +209,76 @@ func waitForSonarJob(report *SonarReport) (*TaskResponse, error) {
 			if job.Task.Status == "SUCCESS" {
 				return job, nil
 			}
-			if job.Task.Status == "ERROR" {
-				return nil, errors.New("ERROR")
-			}
 		}
 	}
+}
+
+func staticScan(p *Plugin) (*SonarReport, error) {
+	if _, err := os.Stat(p.Config.Settings); errors.Is(err, os.ErrExist) {
+		cmd := exec.Command("sed", "-e", "s/=/=\"/", "-e", "s/$/\"/", p.Config.Settings)
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Fatal("Run command sed failed")
+			return nil, err
+		}
+		// log.Printf("%s\n",output)
+
+		report := SonarReport{}
+		err = toml.Unmarshal(output, &report)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"error": err,
+			}).Fatal("Toml Unmarshal failed")
+			return nil, err
+		}
+
+	}
+	args := []string{
+		"-Dsonar.projectKey=" + strings.Replace(p.Config.Key, "/", ":", -1),
+		"-Dsonar.projectName=" + p.Config.Name,
+		"-Dsonar.host.url=" + p.Config.Host,
+		"-Dsonar.login=" + p.Config.Token,
+		"-Dsonar.projectVersion=" + p.Config.Version,
+		"-Dsonar.sources=" + p.Config.Sources,
+		"-Dproject.settings=" + p.Config.Settings,
+		"-Dsonar.ws.timeout=360",
+		"-Dsonar.inclusions=" + p.Config.Inclusions,
+		"-Dsonar.exclusions=" + p.Config.Exclusions,
+		"-Dsonar.profile=" + p.Config.Profile,
+		"-Dsonar.branch=" + p.Config.Branch,
+		"-Dsonar.scm.provider=git",
+		//"-Dsonar.java.binaries=" + p.Binaries,
+	}
+
+	cmd := exec.Command("sonar-scanner", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("Run command sonar-scanner failed")
+		return nil, err
+	}
+	fmt.Printf("out:\n%s", output)
+	cmd = exec.Command("sed", "-e", "s/=/=\"/", "-e", "s/$/\"/", ".scannerwork/report-task.txt")
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("Run command sed failed")
+		return nil, err
+	}
+	// log.Printf("%s\n",output)
+
+	report := SonarReport{}
+	err = toml.Unmarshal(output, &report)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Fatal("Toml Unmarshal failed")
+		return nil, err
+	}
+
+	return &report, nil
 }
