@@ -83,15 +83,36 @@ func init() {
 	}
 }
 
+func TryCatch(f func()) func() error {
+	return func() (err error) {
+		defer func() {
+		if panicInfo := recover(); panicInfo != nil {
+			err = fmt.Errorf("%v, %s", panicInfo, string(debug.Stack()))
+			return
+		}
+		}()
+		f() // calling the decorated function
+		return err
+	}
+}
+
 func (p Plugin) Exec() error {
 	args := []string{
 		"-Dsonar.host.url=" + p.Config.Host,
 		"-Dsonar.login=" + p.Config.Token,
 	}
-
+	projectFinalKey := ""
+	if err := TryCatch(strings.Replace(p.Config.Key, "/", ":", -1); err != nil {
+		projectFinalKey = p.Config.Key
+		fmt.Println(err)
+	}
+	else{
+		projectFinalKey = strings.Replace(p.Config.Key, "/", ":", -1)
+	}
+	 
 	if !p.Config.UsingProperties {
 		argsParameter := []string{
-			"-Dsonar.projectKey=" + strings.Replace(p.Config.Key, "/", ":", -1),
+			"-Dsonar.projectKey=" + projectFinalKey,
 			"-Dsonar.projectName=" + p.Config.Name,
 			"-Dsonar.projectVersion=" + p.Config.Version,
 			"-Dsonar.sources=" + p.Config.Sources,
