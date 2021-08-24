@@ -95,14 +95,16 @@ func TryCatch(f func()) func() error {
 		return err
 	}
 }
-
+func GetProjectKey() {
+	test :=strings.Replace(p.Config.Key, "/", ":", -1)
+}
 func (p Plugin) Exec() error {
 	args := []string{
 		"-Dsonar.host.url=" + p.Config.Host,
 		"-Dsonar.login=" + p.Config.Token,
 	}
 	projectFinalKey := ""
-	if err := TryCatch(strings.Replace(p.Config.Key, "/", ":", -1))(); err != nil {
+	if err := TryCatch(GetProjectKey)(); err != nil {
 		projectFinalKey = p.Config.Key
 		fmt.Println(err)
 	}
