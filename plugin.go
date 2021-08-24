@@ -89,7 +89,7 @@ func TryCatch(f func()) func() error {
 	return func() (err error) {
 		defer func() {
 			if panicInfo := recover(); panicInfo != nil {
-				err = fmt.Errorf("%v, %s", panicInfo, string(debug.Stack()))
+				err = fmt.Errorf("%v", panicInfo)
 				return
 			}
 		}()
