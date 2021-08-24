@@ -97,8 +97,9 @@ func TryCatch(f func()) func() error {
 		return err
 	}
 }
-func GetProjectKey(key string) {
-	projectKey := strings.Replace(key, "/", ":", -1)
+func GetProjectKey(key string) string {
+	projectKey = strings.Replace(key, "/", ":", -1)
+	return projectKey
 }
 func (p Plugin) Exec() error {
 	args := []string{
