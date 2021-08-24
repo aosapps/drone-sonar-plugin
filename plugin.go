@@ -97,7 +97,7 @@ func TryCatch(f func()) func() error {
 		return err
 	}
 }
-func (p Plugin) GetProjectKey() {
+func GetProjectKey(p *Plugin) {
 	projectKey := strings.Replace(p.Config.Key, "/", ":", -1)
 }
 func (p Plugin) Exec() error {
@@ -106,7 +106,7 @@ func (p Plugin) Exec() error {
 		"-Dsonar.login=" + p.Config.Token,
 	}
 	projectFinalKey := ""
-	if err := TryCatch(GetProjectKey)(); err != nil {
+	if err := TryCatch(GetProjectKey(&p))(); err != nil {
 		projectKey = p.Config.Key
 		fmt.Println(err)
 	}
