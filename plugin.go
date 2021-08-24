@@ -107,7 +107,7 @@ func (p Plugin) Exec() error {
 		"-Dsonar.login=" + p.Config.Token,
 	}
 	//projectFinalKey := strings.Replace(p.Config.Key, "/", ":", -1)
-	projectFinalKey = p.Config.Key
+	projectFinalKey := p.Config.Key
 
 	if !p.Config.UsingProperties {
 		argsParameter := []string{
