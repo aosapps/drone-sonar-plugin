@@ -20,6 +20,8 @@ import (
 
 var netClient *http.Client
 
+var projectKey = ""
+
 type (
 	Config struct {
 		Key   string
@@ -86,17 +88,17 @@ func init() {
 func TryCatch(f func()) func() error {
 	return func() (err error) {
 		defer func() {
-		if panicInfo := recover(); panicInfo != nil {
-			err = fmt.Errorf("%v, %s", panicInfo, string(debug.Stack()))
-			return
-		}
+			if panicInfo := recover(); panicInfo != nil {
+				err = fmt.Errorf("%v, %s", panicInfo, string(debug.Stack()))
+				return
+			}
 		}()
 		f() // calling the decorated function
 		return err
 	}
 }
 func GetProjectKey() {
-	test :=strings.Replace(p.Config.Key, "/", ":", -1)
+	projectKey := strings.Replace(p.Config.Key, "/", ":", -1)
 }
 func (p Plugin) Exec() error {
 	args := []string{
@@ -105,13 +107,9 @@ func (p Plugin) Exec() error {
 	}
 	projectFinalKey := ""
 	if err := TryCatch(GetProjectKey)(); err != nil {
-		projectFinalKey = p.Config.Key
+		projectKey = p.Config.Key
 		fmt.Println(err)
 	}
-	else{
-		projectFinalKey = strings.Replace(p.Config.Key, "/", ":", -1)
-	}
-	
 
 	if !p.Config.UsingProperties {
 		argsParameter := []string{
