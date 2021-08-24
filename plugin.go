@@ -102,7 +102,7 @@ func (p Plugin) Exec() error {
 		"-Dsonar.login=" + p.Config.Token,
 	}
 	projectFinalKey := ""
-	if err := TryCatch(strings.Replace(p.Config.Key, "/", ":", -1); err != nil {
+	if err := TryCatch(strings.Replace(p.Config.Key, "/", ":", -1))(); err != nil {
 		projectFinalKey = p.Config.Key
 		fmt.Println(err)
 	}
