@@ -130,7 +130,7 @@ func (p Plugin) Exec() error {
 		args = append(args, "-Dsonar.branch.name="+p.Config.Branch)
 	}
 	fmt.Printf("sonar-scanner")
-	fmt.Printf(args...)
+	fmt.Printf("%v", args)
 	cmd := exec.Command("sonar-scanner", args...)
 	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
