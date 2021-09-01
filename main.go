@@ -21,12 +21,12 @@ func main() {
 		cli.StringFlag{
 			Name:   "key",
 			Usage:  "project key",
-			EnvVar: "DRONE_REPO,PLUGIN_KEY",
+			EnvVar: "PLUGIN_SONAR_KEY",
 		},
 		cli.StringFlag{
 			Name:   "name",
 			Usage:  "project name",
-			EnvVar: "DRONE_REPO,PLUGIN_NAME",
+			EnvVar: "PLUGIN_SONAR_NAME",
 		},
 		cli.StringFlag{
 			Name:   "host",
