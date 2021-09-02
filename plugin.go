@@ -184,7 +184,6 @@ func (p Plugin) Exec() error {
 			"status": status,
 		}).Fatal("QualityGate status failed")
 	} else {
-
 		fmt.Printf("\n==> PASSED <==\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
