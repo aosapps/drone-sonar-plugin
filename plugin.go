@@ -191,7 +191,9 @@ func (p Plugin) Exec() error {
 		}).Info("QualityGate Status Success")
 		fmt.Printf("\n\n\n")
 		fmt.Printf("\n==> PROJECT DASHBOARD <== \n\n")
-		fmt.Printf("http://35.238.17.215/dashboard?id=")
+		fmt.Printf("http://")
+		fmt.Printf(p.Config.Host)
+		fmt.Printf("/dashboard?id=")
 		fmt.Printf(p.Config.Name)
 	}
 
