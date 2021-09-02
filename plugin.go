@@ -188,7 +188,7 @@ func (p Plugin) Exec() error {
 		fmt.Printf("\n==> PASSED <==\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
-		}).Info("QualityGate Status Success")
+		}).Info("Quality Gate Status Success")
 		fmt.Printf("\n")
 		fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
 		fmt.Printf("http://")
