@@ -185,17 +185,17 @@ func (p Plugin) Exec() error {
 		}).Fatal("QualityGate status failed")
 	} else {
 
-		fmt.Printf("\n==> PASSED <== \n\n")
+		fmt.Printf("\n==> PASSED <==\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
 		}).Info("QualityGate Status Success")
-		fmt.Printf("\n\n\n")
-		fmt.Printf("\n==> SONAR PROJECT DASHBOARD <== \n\n")
+		fmt.Printf("\n")
+		fmt.Printf("\n==> SONAR PROJECT DASHBOARD <==\n")
 		fmt.Printf("http://")
 		fmt.Printf(p.Config.Host)
 		fmt.Printf("/dashboard?id=")
 		fmt.Printf(p.Config.Name)
-		fmt.Printf("\n\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
+		fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
 	}
 
 	return nil
