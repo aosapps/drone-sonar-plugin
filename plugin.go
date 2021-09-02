@@ -190,7 +190,6 @@ func (p Plugin) Exec() error {
 		}).Info("Quality Gate Status Success")
 		fmt.Printf("\n")
 		fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
-		fmt.Printf("http://")
 		fmt.Printf(p.Config.Host)
 		fmt.Printf("/dashboard?id=")
 		fmt.Printf(p.Config.Name)
