@@ -122,6 +122,7 @@ func (p Plugin) Exec() error {
 			"-Dsonar.showProfiling=" + p.Config.ShowProfiling,
 			"-Dsonar.scm.provider=git",
 			"-Dsonar.java.binaries=" + p.Config.Binaries,
+			"-Dsonar.qualitygate.wait=true",
 		}
 		args = append(args, argsParameter...)
 	}
@@ -184,10 +185,14 @@ func (p Plugin) Exec() error {
 		}).Fatal("QualityGate status failed")
 	} else {
 
-		fmt.Printf("\nPASSED\n\n")
+		fmt.Printf("\n==> PASSED <== \n\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
 		}).Info("QualityGate Status Success")
+		fmt.Printf("\n\n\n")
+		fmt.Printf("\n==> PROJECT DASHBOARD <== \n\n")
+		fmt.Printf("http://35.238.17.215/dashboard?id=")
+		fmt.Printf(p.Config.Name)
 	}
 
 	return nil
