@@ -190,11 +190,12 @@ func (p Plugin) Exec() error {
 			"status": status,
 		}).Info("QualityGate Status Success")
 		fmt.Printf("\n\n\n")
-		fmt.Printf("\n==> PROJECT DASHBOARD <== \n\n")
+		fmt.Printf("\n==> SONAR PROJECT DASHBOARD <== \n\n")
 		fmt.Printf("http://")
 		fmt.Printf(p.Config.Host)
 		fmt.Printf("/dashboard?id=")
 		fmt.Printf(p.Config.Name)
+		fmt.Printf("\n\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
 	}
 
 	return nil
