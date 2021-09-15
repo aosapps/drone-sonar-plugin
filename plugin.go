@@ -16,6 +16,9 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"encoding/json"
+	"encoding/xml"
 )
 
 var netClient *http.Client
@@ -71,6 +74,50 @@ type (
 			Status string `json:"status"`
 		} `json:"projectStatus"`
 	}
+	Project struct {
+		ProjectStatus Status `json:"projectStatus"`
+	}
+	Status struct {
+		Status            string      `json:"status"`
+		IgnoredConditions bool        `json:"ignoredConditions"`
+		Conditions        []Condition `json:"conditions"`
+	}
+
+	Condition struct {
+		Status         string `json:"status"`
+		MetricKey      string `json:"metricKey"`
+		Comparator     string `json:"comparator"`
+		PeriodIndex    int    `json:"periodIndex"`
+		ErrorThreshold string `json:"errorThreshold"`
+		ActualValue    string `json:"actualValue"`
+	}
+
+	Testsuites struct {
+		XMLName   xml.Name    `xml:"testsuites"`
+		Text      string      `xml:",chardata"`
+		TestSuite []Testsuite `xml:"testsuite"`
+	}
+	Testsuite struct {
+		Text     string     `xml:",chardata"`
+		Package  string     `xml:"package,attr"`
+		Time     int        `xml:"time,attr"`
+		Tests    int        `xml:"tests,attr"`
+		Errors   int        `xml:"errors,attr"`
+		Name     string     `xml:"name,attr"`
+		TestCase []Testcase `xml:"testcase"`
+	}
+
+	Testcase struct {
+		Text      string   `xml:",chardata"`
+		Time      int      `xml:"time,attr"`      // Actual Value Sonar
+		Name      string   `xml:"name,attr"`      // Metric Key
+		Classname string   `xml:"classname,attr"` // The metric Rule
+		Failure   *Failure `xml:"failure"`        // Sonar Failure - show results
+	}
+	Failure struct {
+		Text    string `xml:",chardata"`
+		Message string `xml:"message,attr"`
+	}
 )
 
 func init() {
@@ -97,6 +144,45 @@ func TryCatch(f func()) func() error {
 		return err
 	}
 }
+func ParseJunit(data_arr Project, projectName string) Testsuites {
+	errors := 0
+	total := 0
+	testCases := []Testcase{}
+
+	conditionsArray := data_arr.ProjectStatus.Conditions
+
+	for _, condition := range conditionsArray {
+		total += 1
+		if condition.Status != "OK" {
+			errors += 1
+			cond := &Testcase{
+				Name: condition.MetricKey, Classname: "Violate if " + condition.ActualValue + " is " + condition.Comparator + " " + condition.ErrorThreshold, Failure: &Failure{Message: "Violated: " + condition.ActualValue + " is " + condition.Comparator + " " + condition.ErrorThreshold},
+			}
+			testCases = append(testCases, *cond)
+		} else {
+			cond := &Testcase{Name: condition.MetricKey, Classname: "Violate if " + condition.ActualValue + " is " + condition.Comparator + " " + condition.ErrorThreshold, Time: 0}
+			testCases = append(testCases, *cond)
+		}
+	}
+	SonarJunitReport := &Testsuites{
+		TestSuite: []Testsuite{
+			Testsuite{
+				Time: 13, Package: projectName, Errors: errors, Tests: total, Name: "Harness CIE Sonar Test", TestCase: testCases,
+			},
+		},
+	}
+
+	out, _ := xml.MarshalIndent(SonarJunitReport, " ", "  ")
+	fmt.Println(string(out))
+	fmt.Printf("\n")
+	out, _ = xml.MarshalIndent(testCases, " ", "  ")
+	fmt.Println(string(out))
+	fmt.Printf("\n")
+	//SonarJunitReport.TestSuite.TestCase := TestCases
+
+	return *SonarJunitReport
+}
+
 func GetProjectKey(key string) string {
 	projectKey = strings.Replace(key, "/", ":", -1)
 	return projectKey
@@ -178,6 +264,20 @@ func (p Plugin) Exec() error {
 	}
 
 	status := getStatus(task, report)
+
+	// JUNIT REPORT
+	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
+	bytesReport := []byte(report)
+
+	var p Project
+	err := json.Unmarshal(bytesReport, &p)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v", p)
+	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
+	// JUNIT
 
 	if status != p.Config.Quality {
 		logrus.WithFields(logrus.Fields{
