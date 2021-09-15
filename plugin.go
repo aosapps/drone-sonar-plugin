@@ -19,6 +19,8 @@ import (
 
 	"encoding/json"
 	"encoding/xml"
+
+	"bytes"
 )
 
 var netClient *http.Client
@@ -233,11 +235,16 @@ func (p Plugin) Exec() error {
 	cmd = exec.Command("cat", ".scannerwork/report-task.txt")
 	// JUNIT REPORT
 	junitReport := ""
+	// import "bytes"
+	buf := new(bytes.Buffer)
+	f(buf)
+
 	// JUNIT REPORT
-	cmd.Stdout = junitReport
+	cmd.Stdout = buf
 
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Report Result:\n")
+	junitReport = buf.String() // returns a string of what was written to it
 	fmt.Printf(junitReport)
 	err = cmd.Run()
 
