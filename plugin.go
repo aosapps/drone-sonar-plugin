@@ -279,7 +279,9 @@ func (p Plugin) Exec() error {
 	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
 	//readBuf, _ := ioutil.ReadAll(buf)
 	bytesReport := []byte(junitReport)
-
+	fmt.Printf("BEGIN")
+	fmt.Printf(junitReport)
+	fmt.Printf("END")
 	var project Project
 	err = json.Unmarshal(bytesReport, &project)
 	if err != nil {
