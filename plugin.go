@@ -334,7 +334,7 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	// JUNUT
 	junitReport := ""
 	junitReport = string(buf) // returns a string of what was written to it
-	fmt.Printf("---------------------> JUNIT Exporter <---------------------\n")
+	fmt.Printf("\n---------------------> JUNIT Exporter <---------------------\n")
 	bytesReport := []byte(junitReport)
 	fmt.Printf("BEGIN")
 	fmt.Printf(junitReport)
@@ -346,7 +346,13 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	}
 
 	fmt.Printf("%+v", projectReport)
-	fmt.Printf("---------------------> JUNIT Exporter <---------------------\n")
+	fmt.Printf("\n")
+	result := ParseJunit(p, "BankingApp")
+
+	fmt.Printf("\n")
+	fmt.Printf("Junit Report:\n%+v", result)
+
+	fmt.Printf("\n---------------------> JUNIT Exporter <---------------------\n")
 
 	//JUNIT
 	fmt.Printf("\n\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n==> Results:")
