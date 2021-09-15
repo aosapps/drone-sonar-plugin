@@ -231,15 +231,15 @@ func (p Plugin) Exec() error {
 	/* Test result report*/
 
 	cmd = exec.Command("cat", ".scannerwork/report-task.txt")
+	// JUNIT REPORT
+	junitReport := ""
+	// JUNIT REPORT
+	cmd.Stdout = junitReport
 
-	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Report Result:\n")
+	fmt.Printf(junitReport)
 	err = cmd.Run()
-
-	// JUNIT REPORT
-	junitReport := err
-	// JUNIT REPORT
 
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
