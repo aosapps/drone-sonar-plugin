@@ -237,7 +237,6 @@ func (p Plugin) Exec() error {
 	junitReport := ""
 	// import "bytes"
 	buf := new(bytes.Buffer)
-	f(buf)
 
 	// JUNIT REPORT
 	cmd.Stdout = buf
@@ -279,7 +278,7 @@ func (p Plugin) Exec() error {
 
 	// JUNIT REPORT
 	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
-	bytesReport := []byte(junitReport)
+	bytesReport := []byte(buf)
 
 	var p Project
 	err := json.Unmarshal(bytesReport, &p)
