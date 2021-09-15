@@ -236,6 +236,11 @@ func (p Plugin) Exec() error {
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Report Result:\n")
 	err = cmd.Run()
+
+	// JUNIT REPORT
+	junitReport := err
+	// JUNIT REPORT
+
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
@@ -267,7 +272,7 @@ func (p Plugin) Exec() error {
 
 	// JUNIT REPORT
 	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
-	bytesReport := []byte(report)
+	bytesReport := []byte(junitReport)
 
 	var p Project
 	err := json.Unmarshal(bytesReport, &p)
