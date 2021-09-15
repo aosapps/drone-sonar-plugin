@@ -235,7 +235,6 @@ func (p Plugin) Exec() error {
 
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Report Result:\n")
-
 	err = cmd.Run()
 
 	if err != nil {
@@ -244,6 +243,11 @@ func (p Plugin) Exec() error {
 		}).Fatal("Run command cat reportname failed")
 		return err
 	}
+
+	junitReport = buf.String() // returns a string of what was written to it
+	fmt.Printf("Begin:")
+	fmt.Printf(junitReport)
+	fmt.Printf("End:")
 
 	report, err := staticScan(&p)
 	if err != nil {
