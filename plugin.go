@@ -231,7 +231,7 @@ func (p Plugin) Exec() error {
 	/* Test result report*/
 
 	cmd = exec.Command("cat", ".scannerwork/report-task.txt")
-	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
+
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Report Result:\n")
