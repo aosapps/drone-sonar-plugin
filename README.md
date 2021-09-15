@@ -8,7 +8,6 @@ The plugin of Harness CIE to integrate with SonarQube (previously called Sonar),
 
 Detail tutorials: [DOCS.md](DOCS.md).
 
-
 ### Build process
 build go binary file: 
 `GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o harness-sonar`
