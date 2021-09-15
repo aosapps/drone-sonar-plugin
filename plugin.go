@@ -336,9 +336,6 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	junitReport = string(buf) // returns a string of what was written to it
 	fmt.Printf("\n---------------------> JUNIT Exporter <---------------------\n")
 	bytesReport := []byte(junitReport)
-	fmt.Printf("BEGIN")
-	fmt.Printf(junitReport)
-	fmt.Printf("END")
 	var projectReport Project
 	err = json.Unmarshal(bytesReport, &projectReport)
 	if err != nil {
@@ -348,9 +345,11 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	fmt.Printf("%+v", projectReport)
 	fmt.Printf("\n")
 	result := ParseJunit(projectReport, "BankingApp")
+	file, _ := xml.MarshalIndent(result, "", " ")
+	_ = ioutil.WriteFile("sonarResults.xml", file, 0644)
 
 	fmt.Printf("\n")
-	fmt.Printf("Junit Report:\n%+v", result)
+	//fmt.Printf("Junit Report:\n%+v", result)
 
 	fmt.Printf("\n---------------------> JUNIT Exporter <---------------------\n")
 
