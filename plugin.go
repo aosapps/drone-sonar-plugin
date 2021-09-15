@@ -17,7 +17,6 @@ import (
 	"net/url"
 	"time"
 
-	"encoding/json"
 	"encoding/xml"
 
 	"bytes"
@@ -280,13 +279,13 @@ func (p Plugin) Exec() error {
 	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
 	bytesReport := []byte(buf.Bytes())
 
-	var p Project
-	err = json.Unmarshal(bytesReport, &p)
+	var project Project
+	err = json.Unmarshal(bytesReport, &project)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%+v", p)
+	fmt.Printf("%+v", project)
 	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
 	// JUNIT
 
