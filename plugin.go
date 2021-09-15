@@ -281,7 +281,7 @@ func (p Plugin) Exec() error {
 	bytesReport := []byte(buf.Bytes())
 
 	var p Project
-	err := json.Unmarshal(bytesReport, &p)
+	err = json.Unmarshal(bytesReport, &p)
 	if err != nil {
 		panic(err)
 	}
