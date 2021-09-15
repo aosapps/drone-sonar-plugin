@@ -163,6 +163,9 @@ func ParseJunit(data_arr Project, projectName string) Testsuites {
 			testCases = append(testCases, *cond)
 		}
 	}
+	fmt.Printf(os.Getenv("PLUGIN_SONAR_HOST"))
+	fmt.Printf("/dashboard?id=")
+	fmt.Printf(os.Getenv("PLUGIN_SONAR_NAME"))
 	SonarJunitReport := &Testsuites{
 		TestSuite: []Testsuite{
 			Testsuite{
