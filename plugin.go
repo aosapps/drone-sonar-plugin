@@ -220,7 +220,7 @@ func (p Plugin) Exec() error {
 	fmt.Printf("sonar-scanner")
 	fmt.Printf("%v", args)
 	cmd := exec.Command("sonar-scanner", args...)
-	// fmt.Printf("==> Executing: %s\n", strings.Join(cmd.Args, " "))
+	//fmt.Printf("==> Executing Args: %s\n", strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Code Analysis Result:\n")
@@ -229,21 +229,13 @@ func (p Plugin) Exec() error {
 		return err
 	}
 
-	/* Test result report*/
-
 	cmd = exec.Command("cat", ".scannerwork/report-task.txt")
-	// JUNIT REPORT
-	junitReport := ""
-	// import "bytes"
-	buf := new(bytes.Buffer)
 
-	// JUNIT REPORT
-	cmd.Stdout = buf
+	cmd.Stdout = os.Stdout
 
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Report Result:\n")
-	junitReport = buf.String() // returns a string of what was written to it
-	fmt.Printf(junitReport)
+
 	err = cmd.Run()
 
 	if err != nil {
@@ -274,23 +266,6 @@ func (p Plugin) Exec() error {
 	}
 
 	status := getStatus(task, report)
-
-	// JUNIT REPORT
-	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
-	//readBuf, _ := ioutil.ReadAll(buf)
-	bytesReport := []byte(junitReport)
-	fmt.Printf("BEGIN")
-	fmt.Printf(junitReport)
-	fmt.Printf("END")
-	var project Project
-	err = json.Unmarshal(bytesReport, &project)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%+v", project)
-	fmt.Printf("---> JUNIT Test <-------------------------------------------------\n")
-	// JUNIT
 
 	if status != p.Config.Quality {
 		logrus.WithFields(logrus.Fields{
@@ -358,6 +333,25 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	}
 	fmt.Printf("==> Report Result:\n")
 	fmt.Printf(string(buf))
+
+	// JUNUT
+	junitReport := ""
+	junitReport = string(buf) // returns a string of what was written to it
+	fmt.Printf("---------------------> JUNIT Exporter <---------------------\n")
+	bytesReport := []byte(junitReport)
+	fmt.Printf("BEGIN")
+	fmt.Printf(junitReport)
+	fmt.Printf("END")
+	var project Project
+	err = json.Unmarshal(bytesReport, &project)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v", project)
+	fmt.Printf("---------------------> JUNIT Exporter <---------------------\n")
+
+	//JUNIT
 	fmt.Printf("\n\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n==> Results:")
 
 	return project.ProjectStatus.Status
