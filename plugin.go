@@ -347,7 +347,7 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 
 	fmt.Printf("%+v", projectReport)
 	fmt.Printf("\n")
-	result := ParseJunit(p, "BankingApp")
+	result := ParseJunit(projectReport, "BankingApp")
 
 	fmt.Printf("\n")
 	fmt.Printf("Junit Report:\n%+v", result)
