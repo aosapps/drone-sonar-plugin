@@ -18,8 +18,6 @@ import (
 	"time"
 
 	"encoding/xml"
-
-	"bytes"
 )
 
 var netClient *http.Client
@@ -341,13 +339,13 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	fmt.Printf("BEGIN")
 	fmt.Printf(junitReport)
 	fmt.Printf("END")
-	var project Project
-	err = json.Unmarshal(bytesReport, &project)
+	var projectReport Project
+	err = json.Unmarshal(bytesReport, &projectReport)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%+v", project)
+	fmt.Printf("%+v", projectReport)
 	fmt.Printf("---------------------> JUNIT Exporter <---------------------\n")
 
 	//JUNIT
