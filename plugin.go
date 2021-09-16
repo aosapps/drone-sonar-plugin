@@ -167,7 +167,7 @@ func ParseJunit(data_arr Project, projectName string) Testsuites {
 	SonarJunitReport := &Testsuites{
 		TestSuite: []Testsuite{
 			Testsuite{
-				Time: 13, Package: projectName, Errors: errors, Tests: total, Name: "Sonar Dashboard: " + dashboardLink, TestCase: testCases,
+				Time: 13, Package: projectName, Errors: errors, Tests: total, Name: dashboardLink, TestCase: testCases,
 			},
 		},
 	}
