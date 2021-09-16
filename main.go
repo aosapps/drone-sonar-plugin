@@ -1,15 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"os"
-
-	"encoding/base64"
 )
 
 var build = "1" // build number set at compile time
-
 func main() {
 	app := cli.NewApp()
 	app.Name = "Drone-Sonar-Plugin"
@@ -17,7 +15,6 @@ func main() {
 	app.Action = run
 	app.Version = fmt.Sprintf("1.0.%s", build)
 	app.Flags = []cli.Flag{
-
 		cli.StringFlag{
 			Name:   "key",
 			Usage:  "project key",
@@ -38,8 +35,7 @@ func main() {
 			Usage:  "SonarQube token",
 			EnvVar: "PLUGIN_SONAR_TOKEN",
 		},
-		// advanced parameters
-		cli.StringFlag{
+		cli.StringFlag{ // advanced parameters
 			Name:   "ver",
 			Usage:  "Project version",
 			EnvVar: "DRONE_BUILD_NUMBER",
@@ -105,18 +101,15 @@ func main() {
 			Value:  "OK",
 		},
 	}
-
 	app.Run(os.Args)
 }
-
 func run(c *cli.Context) {
 	plugin := Plugin{
 		Config: Config{
-			Key:   c.String("key"),
-			Name:  c.String("name"),
-			Host:  c.String("host"),
-			Token: c.String("token"),
-
+			Key:             c.String("key"),
+			Name:            c.String("name"),
+			Host:            c.String("host"),
+			Token:           c.String("token"),
 			Version:         c.String("ver"),
 			Branch:          c.String("branch"),
 			Timeout:         c.String("timeout"),
