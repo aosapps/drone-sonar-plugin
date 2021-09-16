@@ -143,12 +143,12 @@ func TryCatch(f func()) func() error {
 		return err
 	}
 }
-func ParseJunit(data_arr Project, projectName string) Testsuites {
+func ParseJunit(projectArray Project, projectName string) Testsuites {
 	errors := 0
 	total := 0
 	testCases := []Testcase{}
 
-	conditionsArray := data_arr.ProjectStatus.Conditions
+	conditionsArray := projectArray.ProjectStatus.Conditions
 
 	for _, condition := range conditionsArray {
 		total += 1
