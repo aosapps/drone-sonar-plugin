@@ -100,6 +100,12 @@ func main() {
 			EnvVar: "SONAR_QUALITYGATE,PLUGIN_QUALITYGATE",
 			Value:  "OK",
 		},
+		cli.StringFlag{
+			Name:   "quality_gate_enabled",
+			Usage:  "true or false - stop pipeline if sonar quality gateway conditions are not met",
+			Value:  "true",
+			EnvVar: "PLUGIN_SONAR_QUALITY_ENABLED",
+		},
 	}
 	app.Run(os.Args)
 }
@@ -122,6 +128,7 @@ func run(c *cli.Context) {
 			UsingProperties: c.Bool("usingProperties"),
 			Binaries:        c.String("binaries"),
 			Quality:         c.String("quality"),
+			QualityEnabled:  c.String("quality_gate_enabled"),
 		},
 	}
 	os.Setenv("TOKEN", base64.StdEncoding.EncodeToString([]byte(c.String("token")+":")))
