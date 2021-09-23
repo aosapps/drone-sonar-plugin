@@ -255,7 +255,6 @@ func (p Plugin) Exec() error {
 			"error": err,
 		}).Fatal("Unable to scan")
 	}
-
 	logrus.WithFields(logrus.Fields{
 		"job url": report.CeTaskURL,
 	}).Info("Job url")
