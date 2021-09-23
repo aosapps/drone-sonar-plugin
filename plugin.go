@@ -46,6 +46,7 @@ type (
 		Binaries        string
 		Quality         string
 		QualityEnabled  string
+		ArtifactFile    string
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt //
 	SonarReport struct {
@@ -289,6 +290,16 @@ func (p Plugin) Exec() error {
 		}).Info("Quality Gate Status Success")
 	}
 
+	fmt.Printf("\n")
+	fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
+	fmt.Printf(p.Config.Host)
+	fmt.Printf("/dashboard?id=")
+	fmt.Printf(p.Config.Name)
+	fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
+	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + "/dashboard?id=" + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write plugin artifact file at path: %s with error: %s\n", p.Config.ArtifactFile, err)
+	}
 	return nil
 }
 
