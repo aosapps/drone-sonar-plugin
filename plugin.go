@@ -26,6 +26,8 @@ var netClient *http.Client
 
 var projectKey = ""
 
+var sonarDashStatic = "/dashboard?id="
+
 type (
 	Config struct {
 		Key   string
@@ -167,7 +169,7 @@ func ParseJunit(projectArray Project, projectName string) Testsuites {
 			testCases = append(testCases, *cond)
 		}
 	}
-	dashboardLink := os.Getenv("PLUGIN_SONAR_HOST") + "/dashboard?id=" + os.Getenv("PLUGIN_SONAR_NAME")
+	dashboardLink := os.Getenv("PLUGIN_SONAR_HOST") + sonarDashStatic + os.Getenv("PLUGIN_SONAR_NAME")
 	SonarJunitReport := &Testsuites{
 		TestSuite: []Testsuite{
 			Testsuite{
@@ -293,10 +295,10 @@ func (p Plugin) Exec() error {
 	fmt.Printf("\n")
 	fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
 	fmt.Printf(p.Config.Host)
-	fmt.Printf("/dashboard?id=")
+	fmt.Printf(sonarDashStatic
 	fmt.Printf(p.Config.Name)
 	fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
-	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + "/dashboard?id=" + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
+	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + sonarDashStatic + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to write plugin artifact file at path: %s with error: %s\n", p.Config.ArtifactFile, err)
 	}
