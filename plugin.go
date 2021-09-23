@@ -6,10 +6,10 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/diegopereiraeng/harness-cie-sonarqube-scanner/utils/artifact"
+
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
-
-	"github.com/diegopereiraeng/harness-cie-sonarqube-scanner/utils/artifact"
 
 	"encoding/json"
 	"errors"
