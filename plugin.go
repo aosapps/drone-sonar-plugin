@@ -43,6 +43,7 @@ type (
 		UsingProperties bool
 		Binaries        string
 		Quality         string
+		QualityEnabled  string
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt
 	SonarReport struct {
@@ -265,21 +266,25 @@ func (p Plugin) Exec() error {
 
 	status := getStatus(task, report)
 
-	if status != p.Config.Quality {
+	if status != p.Config.Quality && p.Config.QualityEnabled == "true" {
+		fmt.Printf("\n==> QUALITY ENABLED ENALED  - set quality_gate_enabled as false to disable qg\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
 		}).Fatal("QualityGate status failed")
-	} else {
+	}
+	if status != p.Config.Quality && p.Config.QualityEnabled == "false" {
+		fmt.Printf("\n==> QUALITY GATEWAY DISABLED\n")
+		fmt.Printf("\n==> FAILED <==\n")
+		logrus.WithFields(logrus.Fields{
+			"status": status,
+		}).Info("Quality Gate Status FAILED")
+	}
+	if status == p.Config.Quality {
+		fmt.Printf("\n==> QUALITY ENABLED ENALED \n")
 		fmt.Printf("\n==> PASSED <==\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
 		}).Info("Quality Gate Status Success")
-		fmt.Printf("\n")
-		fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
-		fmt.Printf(p.Config.Host)
-		fmt.Printf("/dashboard?id=")
-		fmt.Printf(p.Config.Name)
-		fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
 	}
 
 	return nil
