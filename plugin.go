@@ -285,7 +285,7 @@ func (p Plugin) Exec() error {
 		}).Info("Quality Gate Status FAILED")
 	}
 	if status == p.Config.Quality {
-		fmt.Printf("\n==> QUALITY ENABLED ENALED \n")
+		fmt.Printf("\n==> QUALITY GATEWAY ENALED \n")
 		fmt.Printf("\n==> PASSED <==\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
