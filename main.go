@@ -113,12 +113,6 @@ func main() {
 			Value:  "artifact.json",
 			EnvVar: "PLUGIN_ARTIFACT_FILE",
 		},
-		cli.IntFlag{
-			Name:   "quality_gate_timeout",
-			Usage:  "time in seconds for quality gateway timeout",
-			Value:  300,
-			EnvVar: "PLUGIN_SONAR_QUALITY_TIMEOUT",
-		},
 	}
 	app.Run(os.Args)
 }
@@ -142,7 +136,6 @@ func run(c *cli.Context) {
 			Binaries:        c.String("binaries"),
 			Quality:         c.String("quality"),
 			QualityEnabled:  c.String("quality_gate_enabled"),
-			QualityTimeout:  c.Int("quality_gate_timeout"),
 			ArtifactFile:    c.String("artifact-file"),
 		},
 	}
