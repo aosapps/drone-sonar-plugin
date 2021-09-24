@@ -48,6 +48,7 @@ type (
 		Binaries        string
 		Quality         string
 		QualityEnabled  string
+		QualityTimeout  int
 		ArtifactFile    string
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt //
@@ -215,6 +216,7 @@ func (p Plugin) Exec() error {
 			"-Dsonar.scm.provider=git",
 			"-Dsonar.java.binaries=" + p.Config.Binaries,
 			"-Dsonar.qualitygate.wait=true",
+			"-Dsonar.ws.timeout=" + p.Config.QualityTimeout,
 		}
 		args = append(args, argsParameter...)
 	}
