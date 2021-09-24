@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/drone/drone-kaniko/cmd/artifact"
+
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 
@@ -23,6 +25,8 @@ import (
 var netClient *http.Client
 
 var projectKey = ""
+
+var sonarDashStatic = "/dashboard?id="
 
 type (
 	Config struct {
@@ -44,8 +48,9 @@ type (
 		Binaries        string
 		Quality         string
 		QualityEnabled  string
+		ArtifactFile    string
 	}
-	// SonarReport it is the representation of .scannerwork/report-task.txt
+	// SonarReport it is the representation of .scannerwork/report-task.txt //
 	SonarReport struct {
 		ProjectKey   string `toml:"projectKey"`
 		ServerURL    string `toml:"serverUrl"`
@@ -164,7 +169,7 @@ func ParseJunit(projectArray Project, projectName string) Testsuites {
 			testCases = append(testCases, *cond)
 		}
 	}
-	dashboardLink := os.Getenv("PLUGIN_SONAR_HOST") + "/dashboard?id=" + os.Getenv("PLUGIN_SONAR_NAME")
+	dashboardLink := os.Getenv("PLUGIN_SONAR_HOST") + sonarDashStatic + os.Getenv("PLUGIN_SONAR_NAME")
 	SonarJunitReport := &Testsuites{
 		TestSuite: []Testsuite{
 			Testsuite{
@@ -250,7 +255,6 @@ func (p Plugin) Exec() error {
 			"error": err,
 		}).Fatal("Unable to scan")
 	}
-
 	logrus.WithFields(logrus.Fields{
 		"job url": report.CeTaskURL,
 	}).Info("Job url")
@@ -280,13 +284,23 @@ func (p Plugin) Exec() error {
 		}).Info("Quality Gate Status FAILED")
 	}
 	if status == p.Config.Quality {
-		fmt.Printf("\n==> QUALITY ENABLED ENALED \n")
+		fmt.Printf("\n==> QUALITY GATEWAY ENALED \n")
 		fmt.Printf("\n==> PASSED <==\n")
 		logrus.WithFields(logrus.Fields{
 			"status": status,
 		}).Info("Quality Gate Status Success")
 	}
 
+	fmt.Printf("\n")
+	fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
+	fmt.Printf(p.Config.Host)
+	fmt.Printf(sonarDashStatic)
+	fmt.Printf(p.Config.Name)
+	fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
+	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + sonarDashStatic + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write plugin artifact file at path: %s with error: %s\n", p.Config.ArtifactFile, err)
+	}
 	return nil
 }
 
