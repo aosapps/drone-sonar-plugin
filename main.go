@@ -36,7 +36,7 @@ func main() {
 			Usage:  "SonarQube token",
 			EnvVar: "PLUGIN_SONAR_TOKEN",
 		},
-		cli.StringFlag{ // advanced parameters
+		cli.StringFlag{
 			Name:   "ver",
 			Usage:  "Project version",
 			EnvVar: "PLUGIN_BUILD_NUMBER",
