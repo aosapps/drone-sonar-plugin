@@ -108,10 +108,10 @@ func main() {
 			EnvVar: "PLUGIN_SONAR_QUALITY_ENABLED",
 		},
 		cli.StringFlag{
-			Name:   "quality_gate_timeout",
+			Name:   "scan_timeout",
 			Usage:  "number in seconds for timeout",
 			Value:  "300",
-			EnvVar: "PLUGIN_SONAR_QUALITY_GATE_TIMEOUT",
+			EnvVar: "PLUGIN_SONAR_SCAN_TIMEOUT",
 		},
 		cli.StringFlag{
 			Name:   "artifact-file",
@@ -143,7 +143,7 @@ func run(c *cli.Context) {
 			Quality:         c.String("quality"),
 			QualityEnabled:  c.String("quality_gate_enabled"),
 			ArtifactFile:    c.String("artifact-file"),
-			QualityTimeout:  c.String("quality_gate_timeout"),
+			QualityTimeout:  c.String("scan_timeout"),
 		},
 	}
 	os.Setenv("TOKEN", base64.StdEncoding.EncodeToString([]byte(c.String("token")+":")))
