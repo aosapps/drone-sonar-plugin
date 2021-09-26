@@ -7,9 +7,6 @@ COPY *.mod ./
 COPY vendor ./vendor/
 
 RUN go env GOCACHE 
-#RUN mkdir /go-build
-#ENV GOCACHE=/go-build
-#RUN go env GOCACHE
 
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/pelletier/go-toml/cmd/tomll
