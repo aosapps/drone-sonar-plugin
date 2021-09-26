@@ -7,8 +7,8 @@ COPY *.mod ./
 COPY vendor ./vendor/
 
 RUN go env GOCACHE 
-RUN GOCACHE=/go-build
-RUN export GOCACHE
+RUN mkdir /go-build
+ENV GOCACHE=/go-build
 RUN go env GOCACHE
 
 RUN go get github.com/sirupsen/logrus
