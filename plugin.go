@@ -217,6 +217,7 @@ func (p Plugin) Exec() error {
 			"-Dsonar.java.binaries=" + p.Config.Binaries,
 			"-Dsonar.qualitygate.wait=true",
 			"-Dsonar.ws.timeout=" + p.Config.QualityTimeout,
+			"-Dsonar.qualitygate.timeout" + p.Config.QualityTimeout,
 		}
 		args = append(args, argsParameter...)
 	}
