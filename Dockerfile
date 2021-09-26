@@ -1,4 +1,4 @@
-FROM golang:1.13.4-alpine as build
+FROM golang:1.16.6-alpine as build
 RUN apk add --no-cache --update git
 RUN mkdir -p /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner
 WORKDIR /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner 
