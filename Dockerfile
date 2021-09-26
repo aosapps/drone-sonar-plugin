@@ -1,12 +1,16 @@
-FROM golang:1.13.4-alpine as build
+FROM golang:1.16.6-alpine as build
 RUN apk add --no-cache --update git
 RUN mkdir -p /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner
 WORKDIR /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner 
 COPY *.go ./
+COPY *.mod ./
 COPY vendor ./vendor/
+
+RUN go env GOCACHE 
+
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/pelletier/go-toml/cmd/tomll
-RUN go get github.com/codegangsta/cli
+RUN go get github.com/urfave/cli
 RUN go get github.com/drone/drone-kaniko/cmd/artifact
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o harness-sonar
 

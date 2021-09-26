@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/codegangsta/cli"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 var build = "1" // build number set at compile time
@@ -96,15 +97,21 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:   "quality",
-			Usage:  "Quality Gateway",
+			Usage:  "Quality Gate",
 			EnvVar: "SONAR_QUALITYGATE,PLUGIN_QUALITYGATE",
 			Value:  "OK",
 		},
 		cli.StringFlag{
 			Name:   "quality_gate_enabled",
-			Usage:  "true or false - stop pipeline if sonar quality gateway conditions are not met",
+			Usage:  "true or false - stop pipeline if sonar quality gate conditions are not met",
 			Value:  "true",
 			EnvVar: "PLUGIN_SONAR_QUALITY_ENABLED",
+		},
+		cli.StringFlag{
+			Name:   "scan_timeout",
+			Usage:  "number in seconds for timeout",
+			Value:  "300",
+			EnvVar: "PLUGIN_SONAR_SCAN_TIMEOUT",
 		},
 		cli.StringFlag{
 			Name:   "artifact-file",
@@ -136,6 +143,7 @@ func run(c *cli.Context) {
 			Quality:         c.String("quality"),
 			QualityEnabled:  c.String("quality_gate_enabled"),
 			ArtifactFile:    c.String("artifact-file"),
+			QualityTimeout:  c.String("scan_timeout"),
 		},
 	}
 	os.Setenv("TOKEN", base64.StdEncoding.EncodeToString([]byte(c.String("token")+":")))
