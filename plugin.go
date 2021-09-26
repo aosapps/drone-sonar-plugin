@@ -48,8 +48,8 @@ type (
 		Binaries        string
 		Quality         string
 		QualityEnabled  string
-		//QualityTimeout  int
-		ArtifactFile string
+		QualityTimeout  string
+		ArtifactFile    string
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt //
 	SonarReport struct {
@@ -216,7 +216,7 @@ func (p Plugin) Exec() error {
 			"-Dsonar.scm.provider=git",
 			"-Dsonar.java.binaries=" + p.Config.Binaries,
 			"-Dsonar.qualitygate.wait=true",
-			//"-Dsonar.ws.timeout=" + p.Config.QualityTimeout,
+			"-Dsonar.ws.timeout=" + p.Config.QualityTimeout,
 		}
 		args = append(args, argsParameter...)
 	}
@@ -272,6 +272,17 @@ func (p Plugin) Exec() error {
 
 	status := getStatus(task, report)
 
+	fmt.Printf("\n")
+	fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
+	fmt.Printf(p.Config.Host)
+	fmt.Printf(sonarDashStatic)
+	fmt.Printf(p.Config.Name)
+	fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
+	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + sonarDashStatic + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write plugin artifact file at path: %s with error: %s\n", p.Config.ArtifactFile, err)
+	}
+
 	if status != p.Config.Quality && p.Config.QualityEnabled == "true" {
 		fmt.Printf("\n==> QUALITY ENABLED ENALED  - set quality_gate_enabled as false to disable qg\n")
 		logrus.WithFields(logrus.Fields{
@@ -293,16 +304,6 @@ func (p Plugin) Exec() error {
 		}).Info("Quality Gate Status Success")
 	}
 
-	fmt.Printf("\n")
-	fmt.Printf("==> SONAR PROJECT DASHBOARD <==\n")
-	fmt.Printf(p.Config.Host)
-	fmt.Printf(sonarDashStatic)
-	fmt.Printf(p.Config.Name)
-	fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
-	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + sonarDashStatic + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to write plugin artifact file at path: %s with error: %s\n", p.Config.ArtifactFile, err)
-	}
 	return nil
 }
 
