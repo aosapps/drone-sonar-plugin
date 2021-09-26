@@ -7,16 +7,15 @@ COPY *.mod ./
 COPY vendor ./vendor/
 
 RUN go env GOCACHE 
-RUN mkdir /go-build
-ENV GOCACHE=/go-build
-RUN go env GOCACHE
+#RUN mkdir /go-build
+#ENV GOCACHE=/go-build
+#RUN go env GOCACHE
 
 RUN go get github.com/sirupsen/logrus
 RUN go get github.com/pelletier/go-toml/cmd/tomll
 RUN go get github.com/urfave/cli
 RUN go get github.com/drone/drone-kaniko/cmd/artifact
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o harness-sonar
-
 
 
 FROM openjdk:11.0.8-jre
