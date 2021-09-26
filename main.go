@@ -12,7 +12,7 @@ var build = "1" // build number set at compile time
 func main() {
 	app := cli.NewApp()
 	app.Name = "Drone-Sonar-Plugin"
-	app.Usage = "Drone plugin to integrate with SonarQube."
+	app.Usage = "Drone plugin to integrate with SonarQube and check for Quality Gate."
 	app.Action = run
 	app.Version = fmt.Sprintf("1.0.%s", build)
 	app.Flags = []cli.Flag{
