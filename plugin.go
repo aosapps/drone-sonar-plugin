@@ -224,6 +224,8 @@ func (p Plugin) Exec() error {
 	if p.Config.BranchAnalysis {
 		args = append(args, "-Dsonar.branch.name="+p.Config.Branch)
 	}
+	os.Setenv("SONAR_USER_HOME", ".sonar")
+
 	fmt.Printf("sonar-scanner")
 	fmt.Printf("%v", args)
 	cmd := exec.Command("sonar-scanner", args...)
