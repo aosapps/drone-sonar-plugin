@@ -6,8 +6,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/drone/drone-kaniko/cmd/artifact"
-
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 
@@ -35,21 +33,22 @@ type (
 		Host  string
 		Token string
 
-		Version         string
-		Branch          string
-		Sources         string
-		Timeout         string
-		Inclusions      string
-		Exclusions      string
-		Level           string
-		ShowProfiling   string
-		BranchAnalysis  bool
-		UsingProperties bool
-		Binaries        string
-		Quality         string
-		QualityEnabled  string
-		QualityTimeout  string
-		ArtifactFile    string
+		Version                string
+		Branch                 string
+		Sources                string
+		Timeout                string
+		Inclusions             string
+		Exclusions             string
+		Level                  string
+		ShowProfiling          string
+		BranchAnalysis         bool
+		UsingProperties        bool
+		Binaries               string
+		Quality                string
+		QualityEnabled         string
+		QualityTimeout         string
+		ArtifactFile           string
+		CSOpenCoverReportPaths string
 	}
 	// SonarReport it is the representation of .scannerwork/report-task.txt //
 	SonarReport struct {
@@ -185,7 +184,6 @@ func ParseJunit(projectArray Project, projectName string) Testsuites {
 	out, _ = xml.MarshalIndent(testCases, " ", "  ")
 	fmt.Println(string(out))
 	fmt.Printf("\n")
-	//SonarJunitReport.TestSuite.TestCase := TestCases
 
 	return *SonarJunitReport
 }
@@ -199,7 +197,6 @@ func (p Plugin) Exec() error {
 		"-Dsonar.host.url=" + p.Config.Host,
 		"-Dsonar.login=" + p.Config.Token,
 	}
-	//projectFinalKey := strings.Replace(p.Config.Key, "/", ":", -1)
 	projectFinalKey := p.Config.Key
 
 	if !p.Config.UsingProperties {
@@ -215,19 +212,24 @@ func (p Plugin) Exec() error {
 			"-Dsonar.showProfiling=" + p.Config.ShowProfiling,
 			"-Dsonar.scm.provider=git",
 			"-Dsonar.java.binaries=" + p.Config.Binaries,
-			"-Dsonar.qualitygate.wait=true",
-			"-Dsonar.qualitygate.timeout" + p.Config.QualityTimeout,
 		}
 		args = append(args, argsParameter...)
 	}
-
 	if p.Config.BranchAnalysis {
 		args = append(args, "-Dsonar.branch.name="+p.Config.Branch)
 	}
+	if p.Config.QualityEnabled == "true" {
+		args = append(args, "-Dsonar.qualitygate.wait="+p.Config.QualityEnabled)
+		args = append(args, "-Dsonar.qualitygate.timeout="+p.Config.QualityTimeout)
+	}
+	if len(p.Config.CSOpenCoverReportPaths) >= 1 {
+		args = append(args, "-Dsonar.cs.opencover.reportsPaths="+p.Config.CSOpenCoverReportPaths)
+	}
+	os.Setenv("SONAR_USER_HOME", ".sonar")
+
 	fmt.Printf("sonar-scanner")
 	fmt.Printf("%v", args)
 	cmd := exec.Command("sonar-scanner", args...)
-	//fmt.Printf("==> Executing Args: %s\n", strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	fmt.Printf("==> Code Analysis Result:\n")
@@ -278,10 +280,7 @@ func (p Plugin) Exec() error {
 	fmt.Printf(sonarDashStatic)
 	fmt.Printf(p.Config.Name)
 	fmt.Printf("\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n")
-	err = artifact.WritePluginArtifactFile("Docker", p.Config.ArtifactFile, (p.Config.Host + sonarDashStatic + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to write plugin artifact file at path: %s with error: %s\n", p.Config.ArtifactFile, err)
-	}
+	//"Docker", p.Config.ArtifactFile, (p.Config.Host + sonarDashStatic + p.Config.Name), "Sonar", "Harness Sonar Plugin", []string{"Diego", "latest"})
 
 	if status != p.Config.Quality && p.Config.QualityEnabled == "true" {
 		fmt.Printf("\n==> QUALITY ENABLED ENALED  - set quality_gate_enabled as false to disable qg\n")
@@ -309,8 +308,6 @@ func (p Plugin) Exec() error {
 
 func staticScan(p *Plugin) (*SonarReport, error) {
 
-	/* end Test Report Result */
-	//fmt.Printf("==> Sed Result:\n")
 	cmd := exec.Command("sed", "-e", "s/=/=\"/", "-e", "s/$/\"/", ".scannerwork/report-task.txt")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -372,12 +369,10 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 	_ = ioutil.WriteFile("sonarResults.xml", file, 0644)
 
 	fmt.Printf("\n")
-	//fmt.Printf("Junit Report:\n%+v", result)
-
-	fmt.Printf("\n---------------------> JUNIT Exporter <---------------------\n")
+	fmt.Printf("\n======> JUNIT Exporter <======\n")
 
 	//JUNIT
-	fmt.Printf("\n\n==> Harness CIE SonarQube Plugin with Quality Gateway <==\n\n==> Results:")
+	fmt.Printf("\n======> Harness Drone/CIE SonarQube Plugin <======\n\n====> Results:")
 
 	return project.ProjectStatus.Status
 }

@@ -78,6 +78,9 @@ Safety first, the host and token are stored in Drone Secrets.
 * `usingProperties`: Using the `sonar-project.properties` file in root directory as sonar parameters. (Not include `sonar_host` and
 `sonar_token`.) Default value `false`
 
+# CS (C#) Parameters
+
+* `cs_opencover_reportsPaths`: Path to OpenCover coverage report
 
 # Notes
 
