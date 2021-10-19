@@ -82,7 +82,6 @@ Safety first, the host and token are stored in Drone Secrets.
 
 * `cs_opencover_reportsPaths`: Path to OpenCover coverage report
 
-
 # Notes
 
 * projectKey: `PLUGIN_SONAR_KEY`
