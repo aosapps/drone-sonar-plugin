@@ -2,7 +2,7 @@
 
 The plugin of Harness CIE to integrate with SonarQube (previously called Sonar), which is an open source code quality management platform and check the report results for status OK.
 
-![Plugin Configuration](https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner/blob/master/Sonar-CIE.png)
+<img src="https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner/blob/master/Sonar-CIE.png" alt="Plugin Configuration" width="300"/>
 
 ![Results](https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner/blob/master/SonarResult.png)
 
