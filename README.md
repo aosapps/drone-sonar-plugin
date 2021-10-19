@@ -6,7 +6,7 @@ The plugin of Harness CIE to integrate with SonarQube (previously called Sonar),
 
 <img src="https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner/blob/master/SonarResult.png" alt="Results" width="800"/>
 
-![Console Results](https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner/blob/master/SonarResultConsole.png)
+<img src="https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner/blob/master/SonarResultConsole.png" alt="Console Results" width="800"/>
 
 Detail tutorials: [DOCS.md](DOCS.md).
 
