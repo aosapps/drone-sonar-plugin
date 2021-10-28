@@ -1,11 +1,13 @@
 ---
-date: 2019-02-12T10:50:00+00:00
+date: 2021-09-26T13:36:00+00:00
 title: SonarQube
 author: aosapps
+contributor: diegopereiraeng
 tags: [ Sonar, SonarQube, Analysis, report ]
 logo: sonarqube.svg
-repo: aosapps/drone-sonar-plugin
-image: aosapps/drone-sonar-plugin
+originalRepo: aosapps/drone-sonar-plugin
+repo: diegopereiraeng/harness-cie-sonarqube-scanner
+image: diegopereiraeng/harness-cie-sonarqube-scanner:master
 ---
 
 This plugin can scan your code quality and post the analysis report to your SonarQube server. SonarQube (previously called Sonar), is an open source code quality management platform.
@@ -15,7 +17,7 @@ The below pipeline configuration demonstrates simple usage:
 ```yaml
 steps:
 - name: code-analysis
-  image: aosapps/drone-sonar-plugin
+  image: diegopereiraeng/harness-cie-sonarqube-scanner:master
   settings:
     sonar_host:
       from_secret: sonar_host
@@ -28,7 +30,7 @@ Customized parameters could be specified:
 ```diff
   steps:
   - name: code-analysis
-    image: aosapps/drone-sonar-plugin
+    image: diegopereiraeng/harness-cie-sonarqube-scanner
     settings:
       sonar_host:
         from_secret: sonar_host
@@ -52,6 +54,15 @@ Safety first, the host and token are stored in Drone Secrets.
 
 # Parameter Reference
 
+* `sonar_name`: Sonar Project NAme.
+* `sonar_key`: Sonar Project Key.
+* `sonar_qualitygate_timeout`: Timeout in seconds for Sonar Scan.
+* `artifact_file`: Timeout in seconds for Sonar Scan.
+* `sonar_quality_enabled`: True to block pipeline if sonar quality gate conditions are not met.
+* `branch`: Branch for analysis.
+* `build_number`: Build Version.
+
+
 * `ver`: Code version, Default value `DRONE_BUILD_NUMBER`.
 * `timeout`: Default seconds `60`.
 * `sources`: Comma-separated paths to directories containing source files. 
@@ -67,14 +78,17 @@ Safety first, the host and token are stored in Drone Secrets.
 * `usingProperties`: Using the `sonar-project.properties` file in root directory as sonar parameters. (Not include `sonar_host` and
 `sonar_token`.) Default value `false`
 
+# CS (C#) Parameters
+
+* `cs_opencover_reportsPaths`: Path to OpenCover coverage report
 
 # Notes
 
-* projectKey: `DRONE_REPO`
-* projectName: `DRONE_REPO`
+* projectKey: `PLUGIN_SONAR_KEY`
+* projectName: `PLUGIN_SONAR_NAME`
 * You could also add a file named `sonar-project.properties` at the root of your project to specify parameters.
 
-Code repository: [aosapps/drone-sonar-plugin](https://github.com/aosapps/drone-sonar-plugin).  
+Code repository: [diegopereiraeng/harness-cie-sonarqube-scanner](https://github.com/diegopereiraeng/harness-cie-sonarqube-scanner).  
 SonarQube Parameters: [Analysis Parameters](https://docs.sonarqube.org/display/SONAR/Analysis+Parameters)
 
 # Test your SonarQube Server:
