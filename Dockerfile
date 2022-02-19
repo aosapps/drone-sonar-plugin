@@ -15,7 +15,7 @@ ARG SONAR_SCANNER_CLI=sonar-scanner-cli-${SONAR_VERSION}
 ARG SONAR_SCANNER=sonar-scanner-${SONAR_VERSION}
 
 RUN apt-get update \
-    && apt-get install -y curl \
+    && apt-get install -y nodejs curl \
     && apt-get clean
 
 COPY --from=build /go/src/github.com/aosapps/drone-sonar-plugin/drone-sonar /bin/
@@ -23,8 +23,12 @@ COPY --from=build /go/src/github.com/aosapps/drone-sonar-plugin/drone-sonar /bin
 WORKDIR /bin
 
 RUN curl -fsSO https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/${SONAR_SCANNER_CLI}.zip \
+    && curl -fsSO https://letsencrypt.org/certs/lets-encrypt-r3-cross-signed.pem \
     && unzip ${SONAR_SCANNER_CLI}.zip \
-    && rm ${SONAR_SCANNER_CLI}.zip
+    && keytool -import -v -trustcacerts -cacerts -noprompt -storepass changeit \
+         -file lets-encrypt-r3-cross-signed.pem \
+         -alias "C=US, O=Let's Encrypt, CN=R3" \
+    && rm -v ${SONAR_SCANNER_CLI}.zip lets-encrypt-r3-cross-signed.pem
 
 ENV PATH $PATH:/bin/${SONAR_SCANNER}/bin
 
