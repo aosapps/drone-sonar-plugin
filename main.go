@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 var build = "1" // build number set at compile time
