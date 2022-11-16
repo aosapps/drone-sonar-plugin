@@ -1,4 +1,4 @@
-FROM golang:1.13.4-alpine as build
+FROM golang:1.15-alpine as build
 RUN mkdir -p /go/src/github.com/aosapps/drone-sonar-plugin
 WORKDIR /go/src/github.com/aosapps/drone-sonar-plugin 
 COPY *.go ./
@@ -12,6 +12,7 @@ ARG SONAR_SCANNER_CLI=sonar-scanner-cli-${SONAR_VERSION}
 ARG SONAR_SCANNER=sonar-scanner-${SONAR_VERSION}
 
 RUN apt-get update \
+    && curl -fsSL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get install -y nodejs curl \
     && apt-get clean
 

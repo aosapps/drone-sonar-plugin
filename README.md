@@ -1,3 +1,19 @@
+**Note**: It is necessary to use this updated fork of the Drone SonarQube Plugin to avoid the following warning message on the SonarQube server:
+
+```
+You are using Node.js version 10, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.
+```
+This version has the following updates:
+* golang:1.15-alpine
+* openjdk:11.0.13-jre
+* Node.js v14
+
+
+Links:
+*  [Github](https://github.com/namig7/drone-sonar-plugin-nodejs14)
+*  [Dockerhub](https://hub.docker.com/repository/docker/namigg/drone-sonar-plugin-nodejs14)
+
+
 # drone-sonar-plugin
 The plugin of Drone CI to integrate with SonarQube (previously called Sonar), which is an open source code quality management platform.
 
